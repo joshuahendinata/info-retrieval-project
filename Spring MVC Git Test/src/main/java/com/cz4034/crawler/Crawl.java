@@ -1,4 +1,4 @@
-package crawler;
+package com.cz4034.crawler;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -42,11 +42,11 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 
-import solrObject.SolrObject;
-import tweetJSON.Docs;
-import tweetJSON.TweetJSON;
-import crawler.Crawl;
-import classifier.Classify;
+import com.cz4034.classifier.Classify;
+import com.cz4034.crawler.Crawl;
+import com.cz4034.solrObject.SolrObject;
+import com.cz4034.tweetJSON.Docs;
+import com.cz4034.tweetJSON.TweetJSON;
 
 /**
  * Handles requests for the application home page.

@@ -1,4 +1,4 @@
-package tweetJSON;
+package com.cz4034.tweetJSON;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package solrObject;
+package com.cz4034.solrObject;
 
 import java.util.HashMap;
 import java.util.Map;

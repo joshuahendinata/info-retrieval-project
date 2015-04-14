@@ -1,4 +1,4 @@
-package tweetJSON;
+package com.cz4034.tweetJSON;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
