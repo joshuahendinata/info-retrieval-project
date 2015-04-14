@@ -1,0 +1,142 @@
+@dont-face{
+	font-family: titleFont;
+	src: url(test.ttf);
+}
+
+body{
+}
+
+.main-box{
+	background: url('../img/bna.png');
+	background-size: contain;
+	height: 432px;
+	background-repeat: no-repeat;
+	background-position: 48% 1px;
+}
+
+.overlay-index{
+	height: 900px !important;
+}
+
+.overlay{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	background: background: -webkit-linear-gradient(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0));
+	background: -o-linear-gradient(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0));
+	background: -moz-linear-gradient(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0));
+	background: linear-gradient(rgba(255, 232, 0, 0.41), rgba(255, 255, 255, 0));
+}
+
+.header-space{
+	padding-top: 150px;
+}
+
+.result-header-space{
+	padding-top:20px;
+}
+
+.result-image{
+	height:46px;
+	background: url('../img/bna1.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.app-title{
+	margin-bottom: 30px;
+	color: #FABC4C;
+	font-family: 'Indie Flower', cursive;
+	text-shadow: 2px 1.5px #373737;
+	font-size: 4rem;
+	font-weight: bold;
+}
+
+.main-btn{
+	padding: 0.562rem 1.75rem 0.9375rem !important;
+	height: 38px;
+	background-color: #4099FF;
+}
+
+.blue{
+	background-color: blue;
+}
+
+.green{
+}
+
+.test{
+	background: white;
+	padding: 17px 17px 17px 24px;
+	width: 92%;
+	margin: 4px 16px;
+	border-radius: 3px;
+	box-shadow: 1px 1px 3px -0.5px #3C3C3C;
+	font-family: Arial,sans-serif;
+	line-height: 1.45;
+}
+
+span.user-id{
+	font-weight: bold;
+	line-height: 1.8;
+	margin-right: 6px;
+}
+
+span.time{
+	font-size: 0.80rem;
+  	color: #909090;
+}
+
+span.lat-lng{
+	color: #909090;
+	margin-right: 6px;
+	font-size: 0.9rem;
+	float: right;
+}
+
+.tweet-message{
+	color: rgba(0,0,0,0.9);
+}
+
+.cat {
+	background-color: #4099FF;
+}
+
+.active{
+	background-color: #F56216 !important;
+}
+
+#tweet-map{
+	height:400px;
+}
+
+.test.highlight{
+	display:none;
+	background:red;
+	position:absolute;
+	z-index:0;
+	height:100%;
+	width:100%;
+}
+
+/* NanoScroller CSS */
+
+.nano { 
+	background-color: #FFF088;  
+	border-radius: 3px;  
+	box-shadow: 1px 1px 3px -0.5px #3C3C3C;
+}
+.nano > .nano-content { padding: 10px; }
+.nano > .nano-pane   { background: #888; }
+.nano > .nano-pane > .nano-slider { background: #111; }
+
+/* foundation override */
+.button.small{
+	padding-right: 1.1rem !important;
+	padding-left: 1.1rem !important;
+}
+
+.split.button.small {
+  	padding-right: 3.375rem !important;
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> <!--  required for thymeleaf!! -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CZ4034 - Cari Makan</title>
+    <link rel="stylesheet" th:href="@{/resources/css/foundation.css}"/>
+    <link rel="stylesheet" th:href="@{/resources/css/nanoscroller.css}" />
+    <link rel="stylesheet" th:href="@{/resources/css/nprogress.css}" />
+    <link rel="stylesheet" th:href="@{/resources/css/app.css}" />
+    <script th:src="@{/resources/js/modernizr.js}"></script>
+    <script th:src="@{/resources/js/jquery.js}"></script>
+    <script th:src="@{/resources/js/jquery.nanoscroller.min.js}"></script>
+    <script th:src="@{/resources/js/jquery.linkify.min.js}"></script>
+    <script th:src="@{/resources/js/nprogress.js}"></script>
+    <script th:src="@{/resources/js/app.js}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+  </head>
+  <body>
+    <script th:src="@{/resources/js/foundation.min.js}"></script>
+  <div class="overlay"></div>
+  <form id="main-query" action="#" th:action="@{/query}" th:object="${queryObject}" method="POST">
+    <div class="row small-collapse result-header-space">
+      <div class="medium-8 columns">
+        <div class="row">
+          <div class="small-2 columns result-image"></div>
+          <div class="small-10 columns"><input type="text" th:field="*{queryKey}" placeholder="input your query here" /></div>
+        </div>
+      </div>
+      <div class="medium-4 columns">
+        <div class="row">
+          <div class="small-6 columns"><a class="button main-btn" id="search-btn">Search</a></div>
+          <div class="small-6 columns end"><a class="button main-btn" id="refresh-btn">Refresh</a></div>
+        </div>
+      </div>
+    </div>    
+  </form>
+
+  <div class="button-bar row"> 
+    <div class="large-12 columns">
+      <ul class="button-group" id="cat-button"> 
+        <li><a class="small button cat active" id="all" th:text="'All (' + ${totalTweets} + ')'">All</a></li> 
+        <li><a class="small button cat" th:id="${catNum[0]}" th:text="${catNum[0]} + ' (' + ${catNum[1]} + ')'">Breakfast</a></li> 
+        <li><a class="small button cat" th:id="${catNum[2]}" th:text="${catNum[2]} + ' (' + ${catNum[3]} + ')'">Lunch</a></li>
+        <li><a class="small button cat" th:id="${catNum[4]}" th:text="${catNum[4]} + ' (' + ${catNum[5]} + ')'">Dinner</a></li>
+        <li><a class="small button cat" th:id="${catNum[6]}" th:text="${catNum[6]} + ' (' + ${catNum[7]} + ')'">Brunch</a></li>
+        <li><a class="small button cat" th:id="${catNum[8]}" th:text="${catNum[8]} + ' (' + ${catNum[9]} + ')'">Supper</a></li>
+      </ul> 
+      <ul class="button-group right"> 
+        <li><a class="small button secondary loc active" id="loc1">All</a></li> 
+        <li><a class="small button secondary loc" id="loc2">0.0, 0.0</a></li> 
+        <li><a class="button small button secondary split loc-dropdown">More<span data-dropdown="drop"></span></a>
+			<ul id="drop" class="f-dropdown" data-dropdown-content="true">
+			  <li><a class="loc-drop" id="loc3">Los Angeles</a></li>
+			  <li><a class="loc-drop" id="loc4">New York</a></li>
+			  <li><a class="loc-drop" id="loc5">Singapore</a></li>
+			  <li><a class="loc-drop" id="loc6">London</a></li>
+			  <li><a class="loc-drop" id="loc7">Paris</a></li>
+			</ul>
+		</li>
+      </ul>
+    </div>
+  </div>
+
+	<div class="row green" id="content-body">
+		<div class="medium-8 columns nano">
+      <div class="nano-content">
+        <div class="row" th:each="tweetObject : ${tweetResults}">
+          <div class="test large-12 columns" th:attr="lat=${tweetObject.lat[0]}, 
+          lng=${tweetObject.lng[0]}, version=${tweetObject.version}">
+          	<span class="user-id" th:text="${tweetObject.user[0]}"></span>
+          	<span class="time" th:text="${tweetObject.time}"></span>
+          	<span class="lat-lng" th:text="'At lat: ' + ${tweetObject.lat[0]} + 
+          	' Lon: ' + ${tweetObject.lng[0]}"></span>
+          	<div class="tweet-message" th:text="${tweetObject.text[0]}">is this printed?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="medium-4 columns show-for-medium-up">
+    	<div id="tweet-map"></div>
+    </div>
+	</div>  
+    <script>
+      $(document).foundation();
+    </script>
+  </body>
+</html>

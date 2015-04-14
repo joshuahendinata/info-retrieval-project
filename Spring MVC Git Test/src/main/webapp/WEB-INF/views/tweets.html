@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> <!--  required for thymeleaf!! -->
+	</head>
+	<body>
+		<div class="row tweet" th:fragment="tweetsFragment" th:each="tweetObject : ${tweetResults}">
+		  	<div class="test large-12 columns" th:attr="lat=${tweetObject.lat[0]}, 
+		  	lng=${tweetObject.lng[0]}, version=${tweetObject.version}">
+				<span class="user-id" th:text="${tweetObject.user[0]}"></span>
+          		<span class="time" th:text="${tweetObject.time}"></span>
+          		<span class="lat-lng" th:text="'At lat: ' + ${tweetObject.lat[0]} + 
+          				' Lon: ' + ${tweetObject.lng[0]}"></span>
+				<div class="tweet-message" th:text="${tweetObject.text[0]}">is this printed?</div>
+			</div>
+		</div>
+		<div class="row" th:fragment="noTweets">
+			<div class="test large-12 columns">No more tweets found </div>
+		</div>
+		<div th:fragment="scrollEnd"></div>
+		<div th:fragment="refreshResult" th:text="${#strings.toString(errorObject)}">testing</div>
+	</body>
+</html>
