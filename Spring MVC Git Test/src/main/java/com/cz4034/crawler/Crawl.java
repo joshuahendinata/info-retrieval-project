@@ -44,7 +44,7 @@ public class Crawl {
 		Twitter twitter = new TwitterFactory(cb.build()).getInstance();
 		Query query = new Query("#dinner OR #breakfast OR #brunch OR #lunch OR #supper");
 		query.setLang("en");	//English language
-		int numberOfTweets = 1000;		//maximum number of tweets can be retrieved (API limit)
+		int numberOfTweets = 18000;		//maximum number of tweets can be retrieved (API limit)
 		long lastID = Long.MAX_VALUE;
 		ArrayList<Status> tweets = new ArrayList<Status>();
 		while (tweets.size () < numberOfTweets) {
