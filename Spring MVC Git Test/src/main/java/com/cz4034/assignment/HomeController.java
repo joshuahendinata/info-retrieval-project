@@ -50,7 +50,7 @@ import com.cz4034.tweetJSON.TweetJSON;
 
 /**
  * Handles requests for the application home page.
- * CHANGES B ---
+ * CHANGES A
  */
 @Controller
 public class HomeController {
