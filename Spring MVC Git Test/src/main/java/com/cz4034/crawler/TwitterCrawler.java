@@ -16,7 +16,7 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class Crawl {
+public class TwitterCrawler implements Crawler {
 	//Delimiter used in CSV file
 	private static final String COMMA_DELIMITER = ",";
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -24,9 +24,13 @@ public class Crawl {
 	//CSV file header
 	private static final String FILE_HEADER = "id,user,time,lat,lon,text";
 	
-	public Crawl(){
+	public TwitterCrawler(){
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.cz4034.crawler.Crawler#refresh(java.lang.String)
+	 */
+	@Override
 	public void refresh(String filedir){
 		//Twitter Configuration
 		ConfigurationBuilder cb = new ConfigurationBuilder();

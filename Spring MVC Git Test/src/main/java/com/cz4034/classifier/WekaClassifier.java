@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.context.annotation.Bean;
 
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Attribute;
@@ -14,8 +15,7 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-
-public class Classify {
+public class WekaClassifier implements Classifier {
 	
 	/**
 	 * Object that stores the instance.
@@ -26,7 +26,11 @@ public class Classify {
 	 */
 	private static FilteredClassifier classifier;
 
-	public static void classifyEntries(String filedir) {
+	/* (non-Javadoc)
+	 * @see com.cz4034.classifier.Classifier#classifyEntries(java.lang.String)
+	 */
+	@Override
+	public void classifyEntries(String filedir) {
 		loadModel(filedir + "/J48.model");
 		
 		String id = "";
@@ -74,6 +78,7 @@ public class Classify {
 			FileWriter out = new FileWriter(filedir + "/corpus-labelled.json");
 			out.write(jsonArray.toString(2));
 			out.close();
+			br.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,7 +87,7 @@ public class Classify {
 
 	}
 	
-	private static String classifyEntry(String text) {
+	private String classifyEntry(String text) {
 		// Create the attributes, class and text
 		FastVector fvNominalVal = new FastVector(5);
 		fvNominalVal.addElement("breakfast");
@@ -122,7 +127,7 @@ public class Classify {
 		return instances.classAttribute().value((int) prediction);
 	}
 	
-	private static void loadModel(String fileName) {
+	private void loadModel(String fileName) {
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName));
             Object tmp = in.readObject();

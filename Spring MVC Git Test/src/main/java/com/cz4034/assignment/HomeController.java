@@ -1,50 +1,29 @@
 package com.cz4034.assignment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.util.NamedList;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 
-import com.cz4034.classifier.Classify;
-import com.cz4034.crawler.Crawl;
-import com.cz4034.solrObject.SolrObject;
+import com.cz4034.classifier.Classifier;
+import com.cz4034.crawler.Crawler;
 import com.cz4034.tweetJSON.Docs;
 import com.cz4034.tweetJSON.TweetJSON;
 
@@ -54,14 +33,22 @@ import com.cz4034.tweetJSON.TweetJSON;
  */
 @Controller
 public class HomeController {
-	@Autowired
-	ServletContext servletContext;
 	
+	private ServletContext servletContext;
+	private Crawler twitterCrawler;	
+	private Classifier WekaClassifier;
 	private QueryObject curSelection = new QueryObject();
-	
-	RestTemplate restTemplate = new RestTemplate();
-	
+	private RestTemplate restTemplate = new RestTemplate();
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+	
+	// Constructor Injection for modularity
+	@Autowired
+	public HomeController(Crawler twitterCrawler,
+			Classifier wekaClassifier){
+		
+		this.twitterCrawler = twitterCrawler;
+		this.WekaClassifier = wekaClassifier;
+	}
 	
 	public URI getURI(){
 		URI targetUrl= UriComponentsBuilder.fromUriString("http://localhost:8983")
@@ -270,7 +257,7 @@ public class HomeController {
 		model.addAttribute("tweetResults", tweetResults);
 		return "tweets :: tweetsFragment";
 	}
-
+	
 	// Refresh database by re-crawling from twitter
 	@RequestMapping(value = "/refresh", method = RequestMethod.GET)
 	public String refreshDatabase(Model model){
@@ -278,13 +265,15 @@ public class HomeController {
 		
 		System.out.println(filePath + "/corpus.csv");
 		
+
 		try{
 			// Crawling method: David
-			Crawl a = new Crawl();
-			a.refresh(filePath);
+			
+			//Crawl a = new Crawl();
+			twitterCrawler.refresh(filePath);
 			
 			// Classify method: Ellensi + Nirmala
-			Classify.classifyEntries(filePath);
+			WekaClassifier.classifyEntries(filePath);
 
 			// Indexing method: Audi
 			Process proc = Runtime.getRuntime().exec("java "

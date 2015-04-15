@@ -22,6 +22,12 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean> -->
 	
+	<beans:bean id="twitterCrawler" class="com.cz4034.crawler.TwitterCrawler" >
+	</beans:bean>
+	
+	<beans:bean id="wekaClassifier" class="com.cz4034.classifier.WekaClassifier" >
+	</beans:bean>
+	
 	<!-- Resolves views selected for rendering by @Controllers to .html resources in the /WEB-INF/views directory -->
 	<beans:bean id="templateResolver"
 	      class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
