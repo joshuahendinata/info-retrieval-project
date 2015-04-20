@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.cz4034.assignment.solrService.SolrQuery;
 import com.cz4034.classifier.Classifier;
 import com.cz4034.crawler.Crawler;
 import com.cz4034.tweetJSON.Docs;
@@ -79,31 +80,14 @@ public class HomeController {
 	// Request from search box
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
 	public String homePost(@ModelAttribute QueryObject submittedQuery, Model model) throws URISyntaxException{
-		long startTime = System.currentTimeMillis();
-		
 		// Every new search, instantiate new query object
 		curSelection = new QueryObject();
 		
 		// Update curSelection with the returned object
 		curSelection.setQueryKey(submittedQuery.getQueryKey());
 		
-		System.out.println("query req: " + getURI().toString()); 
+		return SolrQuery.generalAndLocQuery(model, curSelection);
 		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-		
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-		List<String> catNum = tweetObject.getFacet_counts().getFacet_fields().getClassCategory();
-		String totalTweets = tweetObject.getResponse().getNumFound();
-		
-		model.addAttribute("tweetResults", tweetResults);
-		model.addAttribute("catNum", catNum);
-		model.addAttribute("totalTweets", totalTweets);
-		
-		System.out.println();
-		long estimatedTime = System.currentTimeMillis() - startTime;
-		System.out.println("Time elapsed :" + estimatedTime + " ms");
-		
-		return "result";
 	}
 	
 	// Category selection if started from search box
@@ -113,24 +97,7 @@ public class HomeController {
 		// check and immediately change cat if different
 		curSelection.checkStatus(category);
 		
-		System.out.println("cat req: " + getURI().toString()); 
-		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-		
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-
-		if(tweetResults.isEmpty() && curSelection.getStartRow() == 0 ){
-			System.out.println("empty");
-			return "tweets :: noTweets";
-		}
-		else if(tweetResults.isEmpty() && curSelection.getStartRow() != 0 ){
-			System.out.println("done");
-			return "tweets :: scrollEnd";
-		}
-		
-		model.addAttribute("tweetResults", tweetResults);
-		
-		return "tweets :: tweetsFragment";
+		return SolrQuery.catQuery(model, curSelection);
 	}
 
 	// Location selection if started from search box
@@ -138,30 +105,13 @@ public class HomeController {
 	public String homeLocSelection(@PathVariable String loc, Model model) throws URISyntaxException{
 		
 		// To show every result on the cat-button group when location button is clicked 
-		// i.e refresh the button
+		// i.e refresh the button-group
 		curSelection.checkStatus("all");
 		
 		// Set location variable on the URI
 		curSelection.setLoc(loc);
-
-		System.out.println("loc req: " + getURI().toString()); 
 		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-				
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-		List<String> catNum = tweetObject.getFacet_counts().getFacet_fields().getClassCategory();
-		String totalTweets = tweetObject.getResponse().getNumFound();
-		
-		model.addAttribute("tweetResults", tweetResults);
-		model.addAttribute("catNum", catNum);
-		model.addAttribute("totalTweets", totalTweets);
-		
-		// Add queryObject since we return the whole page (not partial)
-		model.addAttribute("queryObject", curSelection);
-		
-		System.out.println();
-		
-		return "result";
+		return SolrQuery.generalAndLocQuery(model, curSelection);
 	}
 	
 	// Request from URL
@@ -169,59 +119,24 @@ public class HomeController {
 	public String homePost(@PathVariable String querykey, Model model){
 		// PROCESS the query here
 		System.out.println(querykey);
-		
+		curSelection = new QueryObject();
 		// Update the curSelection with the input query
 		curSelection.setQueryKey(querykey);
 		
-		System.out.println("URL req: " + getURI().toString());
-		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-		
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-		List<String> catNum = tweetObject.getFacet_counts().getFacet_fields().getClassCategory();
-		String totalTweets = tweetObject.getResponse().getNumFound();
-		
-		model.addAttribute("tweetResults", tweetResults);
-		model.addAttribute("catNum", catNum);
-		model.addAttribute("totalTweets", totalTweets);
-		
-		// Add queryObject since we request from URL (no object passed previously)
-		model.addAttribute("queryObject", curSelection);
-		
-		return "result";
+		return SolrQuery.generalAndLocQuery(model, curSelection);
 	}
 	
 	// Category selection if started from URL
 	@RequestMapping(value = "/query/{queryKey}/cat/{category}", method = RequestMethod.GET)
-	public String catSelection(	@PathVariable String category, 
-								@PathVariable String queryKey,
-								Model model){
+	public String catSelection(	@PathVariable String category, @PathVariable String queryKey, Model model){
 		// PROCESS the query here!
 		System.out.println(curSelection.getLoc());
 		
 		// Update the current selection;
 		curSelection.setQueryKey(queryKey);
 		curSelection.checkStatus(category);
-		
-		System.out.println("URL cat req: " + getURI().toString());
-		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-		
-		
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-		
-		if(tweetResults.isEmpty() && curSelection.getStartRow() == 0 ){
-			System.out.println("empty");
-			return "tweets :: noTweets";
-		}
-		else if(tweetResults.isEmpty() && curSelection.getStartRow() != 0 ){
-			System.out.println("done");
-			return "tweets :: scrollEnd";
-		}
-		
-		model.addAttribute("tweetResults", tweetResults);
-		
-		return "tweets :: tweetsFragment";
+
+		return SolrQuery.catQuery(model, curSelection);
 	}
 
 	// Location selection if started from URL
@@ -230,32 +145,15 @@ public class HomeController {
 								@PathVariable String queryKey,
 								Model model){
 		
+		// To show every result on the cat-button group when location button is clicked 
+		// i.e refresh the button-group
+		curSelection.checkStatus("all");
+		
 		// Update the current selection;
 		curSelection.setQueryKey(queryKey);
 		curSelection.setLoc(loc);
 		
-		// To show every result on the cat-button group when location button is clicked 
-		// i.e refresh the button
-		curSelection.checkStatus("all");
-		
-		System.out.println("URL loc req: " + getURI().toString());
-		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
-		
-		
-		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
-		
-		if(tweetResults.isEmpty() && curSelection.getStartRow() == 0 ){
-			System.out.println("empty");
-			return "tweets :: noTweets";
-		}
-		else if(tweetResults.isEmpty() && curSelection.getStartRow() != 0 ){
-			System.out.println("done");
-			return "tweets :: scrollEnd";
-		}
-		
-		model.addAttribute("tweetResults", tweetResults);
-		return "tweets :: tweetsFragment";
+		return SolrQuery.generalAndLocQuery(model, curSelection);
 	}
 	
 	// Refresh database by re-crawling from twitter
