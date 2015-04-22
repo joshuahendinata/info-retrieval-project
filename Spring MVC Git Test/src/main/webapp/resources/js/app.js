@@ -7,10 +7,11 @@ $(document).ready(function(){
 	var bodyPos = $("#content-body").position();
 	var cat = "all";
 	var homeQ = (window.location.href).replace(/[#]/g,'');
+	var UID = $("#queryUID").attr("uid");
 	console.log(homeQ);
 
 	// To be used later in scroll end function
-	var curSelection = homeQ + "/cat/all";
+	var curSelection = homeQ + "/cat/all" + "/" + UID;
 	
 	//console.log("query is: " + (window.location.href).match(/query\/([a-z0-9]*)?[#/]/)[1]);
 	// Trigger window resize for once
@@ -23,6 +24,8 @@ $(document).ready(function(){
 		$.get(curSelection, function(data){
 		    	var testObj = data;
 
+		    	console.log("request this: " + curSelection);
+		    	
 		    	// Just append with json format and use data.response
 		    	$(".nano-content").append(testObj);
 				$(".nano").nanoScroller();
@@ -43,7 +46,7 @@ $(document).ready(function(){
 		if(cat === $(this).attr("id")) return
 		else{
 			cat = $(this).attr("id");
-			curSelection = homeQ + "/cat/" + cat;
+			curSelection = homeQ + "/cat/" + cat + "/" + UID;
 
 			// to mark the active one
 			$('.cat').removeClass("active");
@@ -76,9 +79,9 @@ $(document).ready(function(){
 			$(this).addClass("active");
 			
 			//$(".nano-content").html(eval(curSelection));
-			$.get(homeQ + "/loc/" + cat, function(data){
+			$.get(homeQ + "/loc/" + cat + "/" + UID, function(data){
 				
-				console.log("request this: " + homeQ + "/loc/" + cat);
+				console.log("request this: " + homeQ + "/loc/" + cat + "/" + UID);
 
 				// Replace category button group with latest AJAX call
 				$("#cat-button").html($(data).find("#cat-button").html());
@@ -113,9 +116,9 @@ $(document).ready(function(){
 			$(document).foundation();
 			
 			//$(".nano-content").html(eval(curSelection));
-			$.get(homeQ + "/loc/" + cat, function(data){
+			$.get(homeQ + "/loc/" + cat + "/" + UID, function(data){
 				
-				console.log("request this: " + homeQ + "/loc/" + cat);
+				console.log("request this: " + homeQ + "/loc/" + cat + "/" + UID);
 
 				// Replace category button group with latest AJAX call
 				$("#cat-button").html($(data).find("#cat-button").html());

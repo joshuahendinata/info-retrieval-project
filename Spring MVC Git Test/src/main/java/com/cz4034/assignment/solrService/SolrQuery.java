@@ -13,17 +13,17 @@ import com.cz4034.tweetJSON.TweetJSON;
 
 public class SolrQuery {
 	
-	private static QueryObject queryObject;
+	//private static QueryObject queryObject;
 	private static RestTemplate restTemplate = new RestTemplate();
 	
 	public static String generalAndLocQuery(Model model, QueryObject curSelection){
 		long startTime = System.currentTimeMillis();
 		
-		queryObject = curSelection;
+		//queryObject = curSelection;
 		
-		System.out.println("query req: " + getURI().toString()); 
+		System.out.println("query req: " + getURI(curSelection).toString()); 
 		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
+		TweetJSON tweetObject = restTemplate.getForObject(getURI(curSelection),TweetJSON.class);
 		
 		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
 		List<String> catNum = tweetObject.getFacet_counts().getFacet_fields().getClassCategory();
@@ -32,7 +32,7 @@ public class SolrQuery {
 		model.addAttribute("tweetResults", tweetResults);
 		model.addAttribute("catNum", catNum);
 		model.addAttribute("totalTweets", totalTweets);
-		model.addAttribute("queryObject", queryObject);
+		model.addAttribute("queryObject", curSelection);
 		
 		long estimatedTime = System.currentTimeMillis() - startTime;
 		System.out.println("Time elapsed :" + estimatedTime + " ms\n");
@@ -43,9 +43,9 @@ public class SolrQuery {
 	public static String catQuery(Model model, QueryObject curSelection){
 		long startTime = System.currentTimeMillis();
 		
-		System.out.println("cat req: " + getURI().toString()); 
+		System.out.println("cat req: " + getURI(curSelection).toString()); 
 		
-		TweetJSON tweetObject = restTemplate.getForObject(getURI(),TweetJSON.class);
+		TweetJSON tweetObject = restTemplate.getForObject(getURI(curSelection),TweetJSON.class);
 		
 		List<Docs> tweetResults = tweetObject.getResponse().getDocs();
 
@@ -66,7 +66,7 @@ public class SolrQuery {
 		return "tweets :: tweetsFragment";
 	}
 	
-	public static URI getURI(){
+	public static URI getURI(QueryObject queryObject){
 		URI targetUrl= UriComponentsBuilder.fromUriString("http://localhost:8983")
 		    .path("/solr/gettingstarted_shard1_replica2/select")
 		    .queryParam("q", queryObject.getQueryKey())

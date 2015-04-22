@@ -1,59 +1,46 @@
 package com.cz4034.assignment;
 
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.cz4034.assignment.solrService.SolrQuery;
 import com.cz4034.classifier.Classifier;
 import com.cz4034.crawler.Crawler;
-import com.cz4034.tweetJSON.Docs;
-import com.cz4034.tweetJSON.TweetJSON;
 
 /**
  * Handles requests for the application home page.
  * CHANGES A
  */
 @Controller
-//@SessionAttributes("queryObject")
 public class HomeController {
 	
 	private ServletContext servletContext;
 	private Crawler twitterCrawler;	
 	private Classifier WekaClassifier;
-	private QueryObject curSelection; // = new QueryObject();
-	private RestTemplate restTemplate = new RestTemplate();
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+	private Map<String, QueryObject> queryObjList = new HashMap<String, QueryObject>();
 	
 	// Constructor Injection for modularity
 	@Autowired
-	public HomeController(Crawler twitterCrawler, Classifier wekaClassifier ,QueryObject curSelection
-			){
+	public HomeController(Crawler twitterCrawler, Classifier wekaClassifier){
 		
 		this.twitterCrawler = twitterCrawler;
 		this.WekaClassifier = wekaClassifier;
-		this.curSelection = curSelection;
 	}
 
 	/*
@@ -67,100 +54,104 @@ public class HomeController {
 	// Home Rendering
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Locale locale, SessionStatus status, Model model) {
-		//status.setComplete();
+		
 		logger.info("Welcome home! The client locale is {}.", locale);
 		
-		model.addAttribute("queryObject", new QueryObject());
+		QueryObject curSelection = new QueryObject();
+		
+		queryObjList.put(curSelection.getUID(), curSelection);
+		
+		model.addAttribute("queryObject", curSelection);
 	    
 		return "index";
 	}
 	
 	// Request from search box
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
-	public String homePost(@ModelAttribute QueryObject submittedQuery, Model model) throws URISyntaxException{
-		// Every new search, instantiate new query object
-		curSelection = new QueryObject();
+	public String homePost(@ModelAttribute QueryObject submittedQuery, Model model){
 		
-		// Update curSelection with the returned object
-		curSelection.setQueryKey(submittedQuery.getQueryKey());
-
-		// Renew the session Query, but retained the query key
-		// No new object created
-		//String queryKey = submittedQuery.getQueryKey();
-		//submittedQuery = new QueryObject();
-		//submittedQuery.setQueryKey(queryKey);
+		queryObjList.put(submittedQuery.getUID(), submittedQuery);
 		
-		return SolrQuery.generalAndLocQuery(model, curSelection);
+		return SolrQuery.generalAndLocQuery(model, submittedQuery);
 		
 	}
 	
 	// Category selection if started from search box
-	@RequestMapping(value = "/query/cat/{category}", method = RequestMethod.GET)
-	public String homeCatSelection(@PathVariable String category, Model model) throws URISyntaxException{
+	@RequestMapping(value = "/query/cat/{category}/{uid}", method = RequestMethod.GET)
+	public String homeCatSelection( @PathVariable String category, 
+									@PathVariable String uid, 
+									Model model){
 		
-		curSelection.toString();
 		// check and immediately change cat if different
-		curSelection.checkStatus(category);
+		queryObjList.get(uid).checkStatus(category);
 		
-		curSelection.toString();
-		
-		return SolrQuery.catQuery(model, curSelection);
+		return SolrQuery.catQuery(model, queryObjList.get(uid));
 	}
 
 	// Location selection if started from search box
-	@RequestMapping(value = "/query/loc/{loc}", method = RequestMethod.GET)
-	public String homeLocSelection(@PathVariable String loc, Model model) throws URISyntaxException{
+	@RequestMapping(value = "/query/loc/{loc}/{uid}", method = RequestMethod.GET)
+	public String homeLocSelection( @PathVariable String loc, 
+									@PathVariable String uid, 
+									Model model){
 		
 		// To show every result on the cat-button group when location button is clicked 
 		// i.e refresh the button-group
-		curSelection.checkStatus("all");
+		queryObjList.get(uid).checkStatus("all");
 		
 		// Set location variable on the URI
-		curSelection.setLoc(loc);
+		queryObjList.get(uid).setLoc(loc);
 		
-		return SolrQuery.generalAndLocQuery(model, curSelection);
+		return SolrQuery.generalAndLocQuery(model, queryObjList.get(uid));
 	}
 	
 	// Request from URL
 	@RequestMapping(value = "/query/{querykey}", method = RequestMethod.GET)
-	public String homePost(@PathVariable String querykey, Model model){
+	public String homePost( @PathVariable String querykey,	
+							Model model){
 		// PROCESS the query here
 		System.out.println(querykey);
-		curSelection = new QueryObject();
+		
+		QueryObject curSelection = new QueryObject();
+		
 		// Update the curSelection with the input query
 		curSelection.setQueryKey(querykey);
+		queryObjList.put(curSelection.getUID(), curSelection);
+		
+		model.addAttribute("queryObject", curSelection);
 		
 		return SolrQuery.generalAndLocQuery(model, curSelection);
 	}
 	
 	// Category selection if started from URL
-	@RequestMapping(value = "/query/{queryKey}/cat/{category}", method = RequestMethod.GET)
-	public String catSelection(	@PathVariable String category, @PathVariable String queryKey, Model model){
-		// PROCESS the query here!
-		System.out.println(curSelection.getLoc());
+	@RequestMapping(value = "/query/{queryKey}/cat/{category}/{uid}", method = RequestMethod.GET)
+	public String catSelection(	@PathVariable String category, 
+								@PathVariable String queryKey, 
+								@PathVariable String uid, 
+								Model model){
 		
 		// Update the current selection;
-		curSelection.setQueryKey(queryKey);
-		curSelection.checkStatus(category);
+		queryObjList.get(uid).setQueryKey(queryKey);
+		queryObjList.get(uid).checkStatus(category);
 
-		return SolrQuery.catQuery(model, curSelection);
+		return SolrQuery.catQuery(model, queryObjList.get(uid));
 	}
 
 	// Location selection if started from URL
-	@RequestMapping(value = "/query/{queryKey}/loc/{loc}", method = RequestMethod.GET)
+	@RequestMapping(value = "/query/{queryKey}/loc/{loc}/{uid}", method = RequestMethod.GET)
 	public String locSelection(	@PathVariable String loc, 
 								@PathVariable String queryKey,
+								@PathVariable String uid,
 								Model model){
 		
 		// To show every result on the cat-button group when location button is clicked 
 		// i.e refresh the button-group
-		curSelection.checkStatus("all");
+		queryObjList.get(uid).checkStatus("all");
 		
 		// Update the current selection;
-		curSelection.setQueryKey(queryKey);
-		curSelection.setLoc(loc);
+		queryObjList.get(uid).setQueryKey(queryKey);
+		queryObjList.get(uid).setLoc(loc);
 		
-		return SolrQuery.generalAndLocQuery(model, curSelection);
+		return SolrQuery.generalAndLocQuery(model, queryObjList.get(uid));
 	}
 	
 	// Refresh database by re-crawling from twitter

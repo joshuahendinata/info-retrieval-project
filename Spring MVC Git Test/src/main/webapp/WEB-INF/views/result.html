@@ -25,6 +25,7 @@
         <div class="row">
           <div class="small-2 columns result-image"></div>
           <div class="small-10 columns"><input type="text" th:field="*{queryKey}" placeholder="input your query here" /></div>
+          <input type="hidden" th:field="*{UID}" th:value="*{UID}" id="queryUID" th:attr="uid=${queryObject.UID}"/>
         </div>
       </div>
       <div class="medium-4 columns">
@@ -35,7 +36,6 @@
       </div>
     </div>    
   </form>
-
   <div class="button-bar row"> 
     <div class="large-12 columns">
       <ul class="button-group" id="cat-button"> 
