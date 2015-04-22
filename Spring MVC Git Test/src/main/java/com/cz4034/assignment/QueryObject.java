@@ -17,6 +17,13 @@ public class QueryObject {
 		this.loc = "";
 	}
 	
+	@Override
+	public String toString() {
+		return "QueryObject [queryKey=" + queryKey + ", category=" + category
+				+ ", startRow=" + startRow + ", tweetNum=" + tweetNum
+				+ ", loc=" + loc + "]";
+	}
+
 	public void checkStatus(String inputCat){
 		// If all is chosen, change to *
 		if(inputCat.equals("all")){
