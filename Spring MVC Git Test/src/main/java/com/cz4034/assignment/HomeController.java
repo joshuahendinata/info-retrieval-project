@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.support.SessionStatus;
 
-import com.cz4034.assignment.solrService.SolrQuery;
+import com.cz4034.solrService.SolrQuery;
 import com.cz4034.classifier.Classifier;
 import com.cz4034.crawler.Crawler;
 

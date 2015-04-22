@@ -1,4 +1,4 @@
-package com.cz4034.assignment.solrService;
+package com.cz4034.solrService;
 
 import java.net.URI;
 import java.util.List;
