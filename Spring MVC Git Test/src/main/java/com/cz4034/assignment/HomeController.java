@@ -3,6 +3,7 @@ package com.cz4034.assignment;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,46 +36,41 @@ import com.cz4034.tweetJSON.TweetJSON;
  * CHANGES A
  */
 @Controller
+//@SessionAttributes("queryObject")
 public class HomeController {
 	
 	private ServletContext servletContext;
 	private Crawler twitterCrawler;	
 	private Classifier WekaClassifier;
-	private QueryObject curSelection = new QueryObject();
+	private QueryObject curSelection; // = new QueryObject();
 	private RestTemplate restTemplate = new RestTemplate();
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	// Constructor Injection for modularity
 	@Autowired
-	public HomeController(Crawler twitterCrawler,
-			Classifier wekaClassifier){
+	public HomeController(Crawler twitterCrawler, Classifier wekaClassifier ,QueryObject curSelection
+			){
 		
 		this.twitterCrawler = twitterCrawler;
 		this.WekaClassifier = wekaClassifier;
+		this.curSelection = curSelection;
 	}
-	
-	public URI getURI(){
-		URI targetUrl= UriComponentsBuilder.fromUriString("http://localhost:8983")
-		    .path("/solr/gettingstarted_shard1_replica2/select")
-		    .queryParam("q", curSelection.getQueryKey())
-		    .queryParam("fq", "class:" + curSelection.getCategory())
-		    .queryParam("start", curSelection.getStartRow())
-		    .queryParam("rows", curSelection.getTweetNum())
-		    .queryParam("wt", "json").queryParam("indent", "true")
-		    .queryParam("facet", "true").queryParam("facet.field", "class")
-		    .queryParam("spatial", "true")
-		    .queryParam("fq", curSelection.getLoc())		    
-		    .build()
-		    .toUri();
-		return targetUrl;
-	}
-	
+
+	/*
+	@ModelAttribute("submittedQuery")
+	public QueryObject addStuffToRequestScope() {
+		System.out.println("Inside of addStuffToRequestScope");
+		QueryObject bean = new QueryObject();
+		return bean;
+	} */
+
 	// Home Rendering
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String home(Locale locale, Model model) {
+	public String home(Locale locale, SessionStatus status, Model model) {
+		//status.setComplete();
 		logger.info("Welcome home! The client locale is {}.", locale);
 		
-		model.addAttribute("queryObject", curSelection);
+		model.addAttribute("queryObject", new QueryObject());
 	    
 		return "index";
 	}
@@ -85,6 +83,12 @@ public class HomeController {
 		
 		// Update curSelection with the returned object
 		curSelection.setQueryKey(submittedQuery.getQueryKey());
+
+		// Renew the session Query, but retained the query key
+		// No new object created
+		//String queryKey = submittedQuery.getQueryKey();
+		//submittedQuery = new QueryObject();
+		//submittedQuery.setQueryKey(queryKey);
 		
 		return SolrQuery.generalAndLocQuery(model, curSelection);
 		
@@ -94,8 +98,11 @@ public class HomeController {
 	@RequestMapping(value = "/query/cat/{category}", method = RequestMethod.GET)
 	public String homeCatSelection(@PathVariable String category, Model model) throws URISyntaxException{
 		
+		curSelection.toString();
 		// check and immediately change cat if different
 		curSelection.checkStatus(category);
+		
+		curSelection.toString();
 		
 		return SolrQuery.catQuery(model, curSelection);
 	}

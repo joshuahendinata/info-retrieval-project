@@ -28,6 +28,9 @@
 	<beans:bean id="wekaClassifier" class="com.cz4034.classifier.WekaClassifier" >
 	</beans:bean>
 	
+	<beans:bean id="curSelection" class="com.cz4034.assignment.QueryObject" >
+	</beans:bean>
+	
 	<!-- Resolves views selected for rendering by @Controllers to .html resources in the /WEB-INF/views directory -->
 	<beans:bean id="templateResolver"
 	      class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
